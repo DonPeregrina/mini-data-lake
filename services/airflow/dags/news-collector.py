@@ -4,6 +4,7 @@ from os import path
 from datetime import timedelta
 from datetime import datetime
 from minio import Minio
+import pendulum
 
 
 import airflow
@@ -48,6 +49,7 @@ init_month = Variable.get("init_month")
 init_day = Variable.get("init_day")
 minio_client = get_minio_client()
 news_data_dir = os.environ["NEWS_DATA"]
+local_tz = pendulum.timezone("America/Monterrey")
 
 def set_directories(ds, **kwargs):
     set_bucket("news",minio_client)
@@ -70,7 +72,7 @@ def get_news(ds, **kwargs):
 default_args = {
     'owner': 'micro-data-lake',
     'depends_on_past': False,    
-    'start_date': datetime(int(init_year), int(init_month), int(init_day)),
+    'start_date': datetime(int(init_year), int(init_month), int(init_day),tzinfo=local_tz),
     'end_date': datetime.now(),
     'email': ['abxda@micro-data-lake.com'],
     'email_on_failure': False,
