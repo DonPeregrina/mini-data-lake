@@ -1,0 +1,2 @@
+b'"sh" no se reconoce como un comando interno o externo,\r\nprograma o archivo por lotes ejecutable.\r\n'
+b''
