@@ -12,6 +12,8 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.models import Variable
+import logging
+
 
 
 def get_minio_client():
@@ -36,8 +38,31 @@ def set_bucket(bucket_name,minio_client):
         minio_client.make_bucket(bucket_name)
 
 def set_filesystem(directory_fs):
-    if not path.exists(directory_fs):
+    #logging.info('entro a set_filesystem-->'+ str(directory_fs))
+    #logging.info('directorytopic-->'+ str(directory_topic))
+    #origin_path = os.getcwd()
+    #os.chdir(directory_fs)
+    #logging.info('current directory -->' +str(os.getcwd()))
+    #p=subprocess.Popen("mkdir "+directory_topic,shell=True,stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    #os.chdir('../../')
+    #p3 = subprocess.run(['ls'],capture_output=True, text=True)
+    #logging.info('making dir-->'+str(p3.stdout))
+    #(stdout, stderr) = p.communicate()
+    #logging.info('return code -->' +str(p.returncode))
+    #logging.info('standard error -->' +str(stderr))
+    #os.chdir(origin_path)
+    
+    import sys
+    var1 = "test2"
+    try:
         os.makedirs(directory_fs)
+    except OSError as err:
+        logging.info('Catched error'+ str(err))    
+    #this part is not working***************************
+    if not path.exists(directory_fs):
+            logging.info('entro al if')
+            os.makedirs(directory_fs)
+    ##************************************
 
 num_noticias = Variable.get("num_noticias")
 bucket = "news"
@@ -51,9 +76,12 @@ minio_client = get_minio_client()
 news_data_dir = os.environ["NEWS_DATA"]
 local_tz = pendulum.timezone("America/Monterrey")
 
+
+
 def set_directories(ds, **kwargs):
     set_bucket("news",minio_client)
     set_filesystem(directory_fs)
+    logging.info('this is path for directory_fs-->'+ str(directory_fs))
 
 def get_news(ds, **kwargs):
     execution_date = kwargs['execution_date']
@@ -64,9 +92,17 @@ def get_news(ds, **kwargs):
     date = execution_year+"-"+execution_month+"-"+execution_day #"2020-01-01" #YY-MM-DD
     filename_s3 = directory_topic+"/"+date+".json"
     filename_fs = news_data_dir+"/"+bucket+"/"+directory_topic+"/"+date+".json"
-
+    filename_dir = news_data_dir+"/"+bucket+"/"
+    logging.info('this is path for filename_fs-->'+ str(filename_fs))
+    logging.info(str(num_noticias) + "//"+ str(search_topic) + "//"+ str(directory_topic) + "//"+ str(execution_year) + "//"+ str(execution_month) + "//"+str(execution_day) + "//"+ str(bucket))
     if not path.exists(filename_fs):
-        subprocess.run(['sh', news_data_dir+'/libs/get_news.sh',num_noticias, search_topic, directory_topic,execution_year,execution_month,execution_day,bucket])
+        #origin_path = os.getcwd()
+        #p=subprocess.Popen("mkdir ", shell=True,stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        #(stdout, stderr) = p.communicate()
+        p1 =subprocess.run(['sh', news_data_dir+'/libs/get_news.sh',num_noticias, search_topic, directory_topic,execution_year,execution_month,execution_day,bucket],capture_output=True)
+        logging.info('this is standard error from subprocess-->'+ str(p1.stderr))
+        logging.info('this is standard output from subprocess-->'+ str(p1.stdout))
+           
     minio_client.fput_object(bucket, filename_s3, filename_fs, content_type='application/json')
 
 default_args = {

@@ -4,19 +4,19 @@ version: "3"
 #Mini Data Lake by @abxda
 services:
   # Data Science
-  jupyter:
-    build: ./services/jupyter-spark/
-    container_name: "abxda-jupyter-all"
-    env_file:
-      - ./config/jupyter.env
-      - ./config/minio.env
-      - ./config/postgres.env
-    restart: always
-    ports:
-      - 8888:8888
-    volumes:
-      - ./notebooks:/home/jovyan/work
-    entrypoint: sh -c 'start-notebook.sh --NotebookApp.token=$$JUPYTER_PASSWORD'
+  #jupyter:
+  #  build: ./services/jupyter-spark/
+  #  container_name: "abxda-jupyter-all"
+  #  env_file:
+  #    - ./config/jupyter.env
+  #    - ./config/minio.env
+  #    - ./config/postgres.env
+  #  restart: always
+  #  ports:
+  #    - 8888:8888
+  #  volumes:
+  #    - ./notebooks:/home/jovyan/work
+  #  entrypoint: sh -c 'start-notebook.sh --NotebookApp.token=$$JUPYTER_PASSWORD'
     #Start in http://127.0.0.1:8888/lab?token=m1n1lake
 
   # Model Storage
@@ -55,16 +55,16 @@ services:
     restart: "always"
 
   # Database explorer
-  pgadmin:
-    container_name: "pgadmin"
-    image: dpage/pgadmin4
-    env_file:
-      - ./config/pgadmin.env
-    volumes:
-        - pgadmin_volume:/root/.pgadmin
-    ports:
-      - 5050:80
-    restart: "always"
+  #pgadmin:
+  #  container_name: "pgadmin"
+  #  image: dpage/pgadmin4
+  #  env_file:
+  #    - ./config/pgadmin.env
+  #  volumes:
+  #      - pgadmin_volume:/root/.pgadmin
+  #  ports:
+  #    - 5050:80
+  #  restart: "always"
 
  # API
   fastapi:
@@ -112,4 +112,4 @@ services:
 volumes:
   minio_volume:    
   postgres_volume:
-  pgadmin_volume:
+  #pgadmin_volume:

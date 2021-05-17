@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir \
     pandas==0.24.2 \
     scikit-learn==0.20.3 \
     scipy==1.2.1 \
-    newspaper3k==0.2.8
+    newspaper3k==0.2.8 \
+    tweepy
 
 RUN pip3 install twint
