@@ -11,12 +11,19 @@ from airflow.operators.python_operator import PythonOperator
 from pymongo import MongoClient, ReplaceOne
 from sqlalchemy import create_engine
 from datetime import datetime as dt
-import datetime
-from airflow.models import Variable
+import datetime  
 
+
+MONGO_HOST = '127.0.0.1'
+MONGO_PORT = 27017
+MONGO_URI = 'mongodb+srv://orquestratorDH:exile.2021@main.yibma.mongodb.net/dh?retryWrites=true&w=majority'
 MONGO_DATABASE = 'dh'
 MONGO_COLLECTION = ['questions', 'answers']
+MONGO_BATCHSIZE = 1000
+POSTGRES_CONN_STRING = 'postgresql+psycopg2://staging_usr:cyber2022@143.244.222.148:5432/staging'
 POSTGRES_TABLE = 'mongo_data'
+TEMP_FILE = '/home/azureuser/airflow/dags/extract_mongo_{}.csv'
+
 
 
 def get_conn(uri):
@@ -42,7 +49,7 @@ def get_mongo_data(mongo_collection, **kwargs):
     """
     if not mongo_collection:
         raise ValueError("collection is None or empty.")
-    database = get_conn(Variable.get("MONGO_URI"))[MONGO_DATABASE]
+    database = get_conn(MONGO_URI)[MONGO_DATABASE]
     collection = database[mongo_collection]
     df = pd.DataFrame(list(collection.find()))
     # df.to_csv(TEMP_FILE.format(mongo_collection), index=False)
@@ -126,8 +133,8 @@ def insert_postgres_data(**kwargs):
     """
     ti = kwargs['ti']
     df = ti.xcom_pull(task_ids='data_transform')
-    engine = create_engine(Variable.get("POSTGRES_CONN_STRING"))
-    df.to_sql(POSTGRES_TABLE, engine, index=False, if_exists='replace')
+    engine = create_engine(POSTGRES_CONN_STRING)
+    df.to_sql(POSTGRES_TABLE, engine, index=False)
 
 
 default_args = {
